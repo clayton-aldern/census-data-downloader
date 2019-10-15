@@ -4,9 +4,8 @@
 Command-line interface.
 """
 import click
-from census_data_downloader import DOWNLOADERS
-
-DOWNLOADERS_LOOKUP = dict((k.PROCESSED_TABLE_NAME, k) for k in DOWNLOADERS)
+from census_data_downloader.tables import TABLE_LIST
+TABLES_LOOKUP = dict((k.PROCESSED_TABLE_NAME, k) for k in TABLE_LIST)
 
 
 @click.group(help="Download Census data and reformat it for humans")
@@ -24,8 +23,8 @@ DOWNLOADERS_LOOKUP = dict((k.PROCESSED_TABLE_NAME, k) for k in DOWNLOADERS)
 @click.option(
     "--year",
     default=None,
-    type=int,
-    help="The years of data to download. By default it gets only the latest year. Submit 'all' to get every year."
+    type=click.Choice(["2009-2017"]),
+    help="The years of data to download. By default it gets only the latest year. Not all data are available for every year. Submit 'all' to get every year."
 )
 @click.option(
     '--force',
@@ -40,21 +39,33 @@ def cmd(ctx, table, data_dir="./", year=None, force=False):
     ctx.obj['year'] = year
     ctx.obj['force'] = force
     try:
-        klass = DOWNLOADERS_LOOKUP[ctx.obj['table']]
-        ctx.obj['klass'] = klass
-        ctx.obj['runner'] = klass(
-            data_dir=data_dir,
-            years=year,
-            force=force
-        )
+        klass = TABLES_LOOKUP[ctx.obj['table']]
     except KeyError:
-        click.ClickException("Table not found")
+        raise click.ClickException("Table not found")
+    ctx.obj['klass'] = klass
+    ctx.obj['runner'] = klass(
+        data_dir=data_dir,
+        years=year,
+        force=force
+    )
 
 
 @cmd.command(help="Download nationwide data")
 @click.pass_context
 def nationwide(ctx):
     ctx.obj['runner'].download_nationwide()
+
+
+@cmd.command(help="Download divisions")
+@click.pass_context
+def divisions(ctx):
+    ctx.obj['runner'].download_divisions()
+
+
+@cmd.command(help="Download regions")
+@click.pass_context
+def regions(ctx):
+    ctx.obj['runner'].download_regions()
 
 
 @cmd.command(help="Download states")
@@ -69,6 +80,13 @@ def congressionaldistricts(ctx):
     ctx.obj['runner'].download_congressional_districts()
 
 
+@cmd.command(help="Download statehouse districts")
+@click.pass_context
+def statelegislativedistricts(ctx):
+    ctx.obj['runner'].download_state_legislative_districts_upper()
+    ctx.obj['runner'].download_state_legislative_districts_lower()
+
+
 @cmd.command(help="Download counties in all states")
 @click.pass_context
 def counties(ctx):
@@ -81,33 +99,76 @@ def places(ctx):
     ctx.obj['runner'].download_places()
 
 
-@cmd.command(help="Download Census tracts in provided state")
-@click.argument(
-    "state",
-    nargs=1,
-    required=True
-)
+@cmd.command(help="Download urban areas")
 @click.pass_context
-def tracts(ctx, state):
-    ctx.obj['runner'].download_tracts(state)
+def urbanareas(ctx):
+    ctx.obj['runner'].download_urban_areas()
 
 
-@cmd.command(help="Download statehouse districts in provided state")
-@click.argument(
-    "statelegislativedistricts",
-    nargs=1,
-    required=True
-)
+@cmd.command(help="Download metropolitan statistical areas")
 @click.pass_context
-def statelegislativedistricts(ctx, state):
-    ctx.obj['runner'].download_state_legislative_districts_upper(state)
-    ctx.obj['runner'].download_state_legislative_districts_lower(state)
+def msas(ctx):
+    ctx.obj['runner'].download_msas()
 
 
-@cmd.command(help="Download all datasets that cover full USA")
+@cmd.command(help="Download combined statistical areas")
 @click.pass_context
-def usa(ctx):
-    ctx.obj['runner'].download_usa()
+def csas(ctx):
+    ctx.obj['runner'].download_csas()
+
+
+@cmd.command(help="Download public use microdata areas")
+@click.pass_context
+def pumas(ctx):
+    ctx.obj['runner'].download_pumas()
+
+
+@cmd.command(help="Download New England city and town areas")
+@click.pass_context
+def nectas(ctx):
+    ctx.obj['runner'].download_nectas()
+
+
+@cmd.command(help="Download combined New England city and town areas")
+@click.pass_context
+def cnectas(ctx):
+    ctx.obj['runner'].download_cnectas()
+
+
+@cmd.command(help="Download American Indian, Alaska Native and Native Hawaiian homelands")
+@click.pass_context
+def aiannhhomelands(ctx):
+    ctx.obj['runner'].download_aiannh_homelands()
+
+
+@cmd.command(help="Download Census tracts")
+@click.pass_context
+def tracts(ctx):
+    ctx.obj['runner'].download_tracts()
+
+
+@cmd.command(help="Download ZIP Code tabulation areas")
+@click.pass_context
+def zctas(ctx):
+    ctx.obj['runner'].download_zctas()
+
+
+@cmd.command(help="Download unified school districts")
+@click.pass_context
+def unifiedschooldistricts(ctx):
+    ctx.obj['runner'].download_unified_school_districts()
+
+
+@cmd.command(help="Download elementary school districts")
+@click.pass_context
+def elementaryschooldistricts(ctx):
+    ctx.obj['runner'].download_elementary_school_districts()
+
+
+@cmd.command(help="Download secondary school districts")
+@click.pass_context
+def secondaryschooldistricts(ctx):
+    ctx.obj['runner'].download_secondary_school_districts()
 
 
 @cmd.command(help="Download everything from everywhere")

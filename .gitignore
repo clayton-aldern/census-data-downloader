@@ -1,6 +1,8 @@
+.~lock.*
 dist
 build
 *.egg*
 .coverage
 *.pyc
 test-data
+.DS_Store

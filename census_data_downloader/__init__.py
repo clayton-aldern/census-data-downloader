@@ -1,58 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*
 # flake8: NOQA
+import jinja2
 import logging
-from us import states
-from .registry import DOWNLOADERS
-from .age import AgeDownloader
-from .education import EducationDownloader
-from .foreignborn import ForeignBornDownloader
-from .householdincome import (
-    HouseholdIncomeDownloader,
-    HouseholdIncomeLatinoDownloader,
-    HouseholdIncomeWhiteDownloader,
-    HouseholdIncomeBlackDownloader,
-    HouseholdIncomeAsianDownloader
-)
-from .internet import InternetDownloader
-from .medianage import MedianAgeDownloader
-from .medianhouseholdincome import (
-    MedianHouseholdIncomeDownloader,
-    MedianHouseholdIncomeLatinoDownloader,
-    MedianHouseholdIncomeWhiteDownloader,
-    MedianHouseholdIncomeBlackDownloader,
-    MedianHouseholdIncomeAsianDownloader
-)
-from .medianmonthlyhousingcosts import MedianMonthlyHousingCostsDownloader
-from .mobility import (
-    MobilityDownloader,
-    MobilityBySexDownloader,
-    MobilityWhiteDownloader,
-    MobilityBlackDownloader,
-    MobilityAsianDownloader,
-    MobilityLatinoDownloader
-)
-from .population import PopulationDownloader
-from .race import RaceDownloader
-from .tenure import (
-    TenureDownloader,
-    TenureLatinoDownloader,
-    TenureWhiteDownloader,
-    TenureBlackDownloader,
-    TenureAsianDownloader
-)
+import pathlib
+from .tables import TABLE_LIST
 logger = logging.getLogger(__name__)
-
-
-def download_usa(*args, **kwargs):
-    """
-    Download all the nationwide data.
-    """
-    logger.debug("Downloading all datasets for all nationwide geographies")
-    for klass in DOWNLOADERS:
-        obj = klass(*args, **kwargs)
-        logger.debug(f"Downloading nationwide {klass.PROCESSED_TABLE_NAME} datasets")
-        obj.download_usa()
 
 
 def download_everything(*args, **kwargs):
@@ -60,16 +13,24 @@ def download_everything(*args, **kwargs):
     Download all the data.
     """
     logger.debug("Downloading all datasets for all geographies")
-    for klass in DOWNLOADERS:
+    for klass in TABLE_LIST:
         obj = klass(*args, **kwargs)
-        logger.debug(f"Downloading nationwide {klass.PROCESSED_TABLE_NAME} dataset")
-        obj.download_usa()
-        for state in states.STATES:
-            logger.debug(f"Downloading tract-level {klass.PROCESSED_TABLE_NAME} data in {state.name}")
-            obj.download_tracts(state.abbr)
-            logger.debug(f"Downloading legislative-district-level {klass.PROCESSED_TABLE_NAME} data in {state.name}")
-            obj.download_legislative_districts_upper(state.abbr)
-            obj.download_legislative_districts_upper(state.abbr)
+        logger.debug(f"Downloading {klass.PROCESSED_TABLE_NAME} dataset")
+        obj.download_everything()
 
 
-__all__ = ("DOWNLOADERS", "download_usa", "download_everything")
+def inventory_everything(docs_dir):
+    """
+    Create markdown files describing all of the data tables.
+    """
+    docs_path = pathlib.Path(docs_dir)
+    if not docs_path.exists():
+        docs_path.mkdir()
+    template_loader = jinja2.FileSystemLoader([pathlib.Path(__file__).parent.joinpath("templates")])
+    template_env = jinja2.Environment(loader=template_loader)
+    list_template = template_env.get_template("table_list.md")
+    with open(docs_path.joinpath("TABLES.md"), 'w') as f:
+        f.write(list_template.render(object_list=TABLE_LIST))
+
+
+__all__ = ("TABLE_LIST", "download_everything")

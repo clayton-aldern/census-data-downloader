@@ -7,12 +7,16 @@ name = "pypi"
 flake8 = "*"
 coverage = "*"
 twine = "*"
+jupyterlab = "*"
 
 [packages]
 pandas = "*"
 us = "*"
 census = "*"
 click = "*"
+jinja2 = "*"
+census-data-aggregator = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3.6"

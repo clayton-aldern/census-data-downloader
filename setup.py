@@ -3,18 +3,24 @@ from setuptools import setup
 
 setup(
     name='census-data-downloader',
-    version='0.0.2',
-    description="Download Census data and reformat it for humans",
-    author='Ben Welsh',
-    author_email='ben.welsh@gmail.com',
+    version='0.0.17',
+    description="Download U.S. census data and reformat it for humans",
+    author='Los Angeles Times Data Desk',
+    author_email='datadesk@latimes.com',
     url='http://www.github.com/datadesk/census-data-downloader',
     license="MIT",
-    packages=("census_data_downloader",),
+    packages=(
+        "census_data_downloader",
+        "census_data_downloader.core",
+        "census_data_downloader.tables",
+    ),
     install_requires=(
         "pandas",
         "us",
         "census",
-        "click"
+        "census-data-aggregator",
+        "click",
+        "jinja2"
     ),
     entry_points="""
         [console_scripts]
