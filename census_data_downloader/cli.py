@@ -23,7 +23,7 @@ TABLES_LOOKUP = dict((k.PROCESSED_TABLE_NAME, k) for k in TABLE_LIST)
 @click.option(
     "--year",
     default=None,
-    type=click.Choice(["2009-2017"]),
+    type=int,
     help="The years of data to download. By default it gets only the latest year. Not all data are available for every year. Submit 'all' to get every year."
 )
 @click.option(
@@ -169,6 +169,18 @@ def elementaryschooldistricts(ctx):
 @click.pass_context
 def secondaryschooldistricts(ctx):
     ctx.obj['runner'].download_secondary_school_districts()
+
+
+@cmd.command(help="Download Alaska Native regional corporations")
+@click.pass_context
+def alaskanative(ctx):
+    ctx.obj['runner'].download_alaska_native()
+
+
+@cmd.command(help="Download county subdivisions")
+@click.pass_context
+def countysubdivision(ctx):
+    ctx.obj['runner'].download_county_subdivision()
 
 
 @cmd.command(help="Download everything from everywhere")

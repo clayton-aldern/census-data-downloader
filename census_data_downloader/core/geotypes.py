@@ -430,3 +430,19 @@ class SecondarySchoolDistrictsDownloader(BaseStateLevelGeoTypeDownloader):
     """
     slug = "secondaryschooldistricts"
     raw_geotype = "school district (secondary)"
+
+
+class AlaskaNativeDownloader(BaseStateLevelGeoTypeDownloader):
+    """
+    Download raw data at the Alaska Native regional corporation level.
+    """
+    slug = "alaskanative"
+    raw_geotype = "alaska native regional corporation"
+
+
+class CountySubdivisionDownloader(BaseStateLevelGeoTypeDownloader):
+    """
+    Download raw data at the county subdivision level.
+    """
+    slug = "countysubdivision"
+    raw_geotype = "county subdivision"
